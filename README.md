@@ -1,5 +1,5 @@
 # Assignment
-Create a Web API with the following functionality.
+Create a Web API with the following functionality. Following with the Methods accordingly.
 
 1. Add an endpoint to get a list of campaigns.
 Make a call to external API https://testapi.donatekart.com/api/campaign to fetch the
@@ -25,4 +25,12 @@ today, or Procured Amount is greater than or equal to the Total Amount.
 
 
 4. Write a query to get the nth highly paid employee of the company.
+
+select * from
+(select employeeName, salary, dense_rank() 
+over(order by salary desc)r from Employee) 
+where r=n;
+
+If n =2, then 2nd highly paid employee,
+n=3, 3rd highly paid employee and so on..
 
