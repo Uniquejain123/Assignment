@@ -16,7 +16,7 @@ namespace Assignment.Controllers
     public class CampaignController : ApiController
     {
         //[HttpGet]
-        public List<Campaigns> GetSortedListOfCampaigns()
+        public string GetSortedListOfCampaigns()
         {
             List<Campaigns> campaigns = new List<Campaigns>();
 
@@ -43,9 +43,33 @@ namespace Assignment.Controllers
                         EndDate = dtSorted.Rows[i]["endDate"].ToString(),
                     });
                 }
+                
             }
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(campaigns);
+            return json;
+        }
 
-            return campaigns;
+        public string GetListOfActiveCampaigns()
+        {            
+            WebRequest req = WebRequest.Create(@"https://testapi.donatekart.com/api/campaign");
+            req.Method = "GET";
+            HttpWebResponse resp = req.GetResponse() as HttpWebResponse;
+            DataTable dt = new DataTable();
+            if (resp.StatusCode == HttpStatusCode.OK)
+            {
+                StreamReader rd = new StreamReader(resp.GetResponseStream());
+                string strXml = rd.ReadToEnd();
+                StringReader reader = new StringReader(strXml);
+                dt = Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(strXml);
+                DateTime dtToday = DateTime.Now;
+                DateTime dtMonth = dtToday.AddDays(-30);
+                string filter = $"endDate >= '{dtToday}' AND created <= '{dtToday}' AND created > '{dtMonth}'";
+                DataRow[] filteredrows = dt.Select(filter);
+                dt = filteredrows.CopyToDataTable();
+            }
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(dt);
+
+            return json;
         }
     }
 }
